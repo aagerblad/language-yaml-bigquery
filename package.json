@@ -1,5 +1,5 @@
 {
-  "name": "YAML-bigquery",
+  "name": "yaml-bigquery",
   "version": "0.0.0",
   "description": "An example language grammar package",
   "repository": "https://github.com/user/package-name",
@@ -11,7 +11,26 @@
   "license": "MIT",
   "bugs": "https://github.com/user/package-name/issues",
   "engines": {
-    "atom": ">=1.0.0 <2.0.0",
     "vscode": ">=0.9.0-pre.1"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "yaml-bigquery",
+        "aliases": [
+          "yaml-bigquery"
+        ],
+        "extensions": [
+          ".yaml"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "yaml-bigquery",
+        "scopeName": "source.yaml-bigquery",
+        "path": "./grammars/yaml-bigquery.tmLanguage.json"
+      }
+    ]
   }
 }

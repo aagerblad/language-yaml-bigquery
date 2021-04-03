@@ -1,0 +1,27 @@
+{
+  "scopeName": "source.yaml-bigquery",
+  "fileTypes": ["yaml"],
+  "patterns": [{ "include": "#main" }],
+  "repository": {
+    "main__1": { "patterns": [] },
+    "main": {
+      "contentName": "source.yaml",
+      "patterns": [
+        {
+          "begin": "(query: )",
+          "beginCaptures": { "1": { "name": "source.yaml" } },
+          "contentName": "source.sql-bigquery",
+          "patterns": [
+            { "include": "source.sql-bigquery" },
+            { "include": "source.yaml" }
+          ],
+          "end": "(^\\S)",
+          "endCaptures": { "1": { "name": "source.yaml" } }
+        },
+        { "include": "source.yaml" }
+      ]
+    }
+  },
+  "name": "yamlbigquery",
+  "uuid": ""
+}
