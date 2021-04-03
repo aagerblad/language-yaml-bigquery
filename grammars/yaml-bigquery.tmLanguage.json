@@ -9,14 +9,13 @@
       "patterns": [
         {
           "begin": "(query: )",
-          "beginCaptures": { "1": { "name": "source.yaml" } },
+          "beginCaptures": { "1": { "name": "keyword" } },
           "contentName": "source.sql-bigquery",
           "patterns": [
-            { "include": "source.sql-bigquery" },
-            { "include": "source.yaml" }
+            { "include": "source.sql-bigquery" }
           ],
           "end": "(^\\S)",
-          "endCaptures": { "1": { "name": "source.yaml" } }
+          "endCaptures": { "1": { "name": "keyword" } }
         },
         { "include": "source.yaml" }
       ]
