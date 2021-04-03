@@ -1,0 +1,79 @@
+type: query
+table_description: "{ policy: { accessTier: BROAD }, description: 'Conversion channel for Gross adds'}"
+query: |
+  SELECT
+    conv.category,
+    conv.conversion_type,
+    conv.grouped_channel,
+    day,
+    retained,
+    COUNT(1) users
+
+  FROM `subs-analytics.growth_strategy.gross_add_17_18_*` conv
+  FROM `subs-analytics.growth_strategy.gross_add_17_18_12329393` conv
+  LEFT JOIN `subs-analytics.scd.user_{{ partition.format('YYYYMMDD') }}` scd USING (user_id),
+    UNNEST([DATE "{{ partition.format('YYYY-MM-DD') }}" ]) today
+
+  LEFT JOIN
+    -- First product instance where days since previous sub is more than 30
+    UNNEST( ARRAY(
+      SELECT
+        ph.start_date
+      FROM
+        scd.product.history ph
+      WHERE
+        ph.start_date > conv.gross_add.reporting_end_date
+        AND ph.days_since_previous_subscription > 30
+        AND ph.is_subscriber
+      ORDER BY ph.start_date ASC
+      LIMIT 1
+    )) first_new_subscription_start_date
+
+    -- Last free product instance where previous product is sub
+  LEFT JOIN
+    UNNEST( ARRAY(
+      SELECT
+        ph.start_date
+      FROM
+        scd.product.history ph
+      WHERE
+        NOT ph.is_subscriber
+        AND ph.previous.is_subscriber
+        AND ph.start_date < COALESCE(first_new_subscription_start_date, today)
+      ORDER BY ph.start_date DESC
+      LIMIT 1
+    )) last_sub_to_free_migration,
+
+    UNNEST( [DATE_DIFF(
+      COALESCE(last_sub_to_free_migration, today), conv.gross_add.start_date, DAY
+    )]) retained_days,
+
+    UNNEST( GENERATE_ARRAY(0,360,30)) day,
+    UNNEST( ARRAY(
+      SELECT
+        IF(
+          ph.subcategory = "subaccount",
+          CONCAT(ph.category, "_sub"),
+          ph.category
+        ) category
+      FROM
+        scd.product.history ph
+      WHERE
+        DATE_ADD(conv.gross_add.start_date, INTERVAL day DAY) BETWEEN ph.start_date AND ph.reporting_end_date
+        AND day < retained_days
+    )) retained
+
+  WHERE
+    gross_add.category NOT IN ("bundle", "iap")
+    AND grouped_channel IS NOT NULL
+  GROUP BY 1,2,3,4,5
+  ORDER BY 1,2,3,4,5
+test:
+    - table_pattern: user_YYYYMMDD
+      dataset_id: scd
+      project_id: subs-analytics
+      external: true
+    - table_pattern: gross_add_17_18_YYYYMMDD
+      dataset_id: growth_strategy
+      project_id: subs-analytics
+      external: true

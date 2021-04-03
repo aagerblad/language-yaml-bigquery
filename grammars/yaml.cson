@@ -1,0 +1,18 @@
+scopeName: 'source.yaml.bigquery'
+name: 'YAML-bigquery'
+fileTypes: [ 'YAML' ]
+limitLineLength: false
+
+
+patterns: [
+  {
+    begin: 'query: '
+    end: '^[^\\s]'
+    # end: '(requires|test)'
+    patterns: [{ include: 'source.sql-bigquery' }]
+  }
+  { include: 'source.yaml.jinja' }
+]
+# source.yaml.jinja
+
+# source.sql-bigquery
