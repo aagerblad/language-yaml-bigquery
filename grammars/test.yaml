@@ -9,10 +9,8 @@ query: |
     retained,
     COUNT(1) users
 
-  FROM `subs-analytics.growth_strategy.gross_add_17_18_*` conv
+  FROM `subs-analytics.growth_strategy.gross_add_17_18_{{ dfjl }}` conv
   FROM `subs-analytics.growth_strategy.gross_add_17_18_12329393` conv
-  LEFT JOIN `subs-analytics.scd.user_{{ partition.format('YYYYMMDD') }}` scd USING (user_id),
-    UNNEST([DATE "{{ partition.format('YYYY-MM-DD') }}" ]) today
 
   LEFT JOIN
     -- First product instance where days since previous sub is more than 30
@@ -69,11 +67,11 @@ query: |
   GROUP BY 1,2,3,4,5
   ORDER BY 1,2,3,4,5
 test:
-    - table_pattern: user_YYYYMMDD
-      dataset_id: scd
-      project_id: subs-analytics
-      external: true
-    - table_pattern: gross_add_17_18_YYYYMMDD
-      dataset_id: growth_strategy
-      project_id: subs-analytics
-      external: true
+  - table_pattern: user_YYYYMMDD
+    dataset_id: scd
+    project_id: subs-analytics
+    external: true
+  - table_pattern: gross_add_17_18_YYYYMMDD
+    dataset_id: growth_strategy
+    project_id: subs-analytics
+    external: true
